@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
+import 'package:video_view/video_player_view.dart';
 
 class VideoView extends StatelessWidget {
   final String url;
@@ -123,12 +125,12 @@ class _VideoViewState extends State<_VideoView> {
     _controller = VideoViewController(
         id: id,
         url: widget.url,
-        onReady: (width, height, rotationDegrees) {
-          if (rotationDegrees == 90 || rotationDegrees == 270) {
-            setState(() {
-              _quarterTurns = 1;
-            });
-          }
+        parentWidth: widget.parentWidth,
+        parentHeight: widget.parentHeight,
+        onClick: () {
+          Navigator.push(context, MaterialPageRoute(builder: (context) {
+            return VideoPlayerPage(widget.url);
+          }));
         });
     widget.onPlatformCompleted(_controller);
   }
@@ -136,12 +138,16 @@ class _VideoViewState extends State<_VideoView> {
 
 class VideoViewController {
   final String url;
-  final void Function(dynamic, dynamic, int) onReady;
+  final double parentWidth;
+  final double parentHeight;
+  final void Function() onClick;
 
   VideoViewController({
     @required int id,
     @required this.url,
-    this.onReady,
+    @required this.parentWidth,
+    @required this.parentHeight,
+    this.onClick,
   }) : _channel = new MethodChannel('plugins.ko2ic.com/video_view/video_view/$id');
 
   final MethodChannel _channel;
@@ -151,18 +157,17 @@ class VideoViewController {
   }
 
   Future<void> load() async {
-//    _channel.setMethodCallHandler((call) {
-//      switch (call.method) {
-//        case "onReady":
-//          var movieWidth = call.arguments["width"];
-//          var movieHeight = call.arguments["height"];
-//          var rotationDegrees = call.arguments["rotationDegrees"] as int;
-//          onReady(movieWidth, movieHeight, rotationDegrees);
-//      }
-//    });
+    _channel.setMethodCallHandler((call) {
+      switch (call.method) {
+        case "onClick":
+          onClick();
+      }
+    });
 
     return _channel.invokeMethod('load', {
       "url": this.url,
+      "parentWidth": this.parentWidth,
+      "parentHeight": this.parentHeight,
     });
   }
 }

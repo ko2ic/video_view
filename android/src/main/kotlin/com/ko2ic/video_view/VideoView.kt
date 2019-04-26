@@ -2,6 +2,8 @@ package com.ko2ic.video_view
 
 import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.content.Intent.FLAG_ACTIVITY_NEW_TASK
 import android.net.Uri
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
@@ -97,8 +99,14 @@ class VideoView(
 
         container?.setOnTouchListener { _, event ->
             if (event.action == MotionEvent.ACTION_DOWN) {
-                exoPlayer.playWhenReady = true
-                exoPlayer.playbackState
+                val uri = Uri.parse(url)
+                val intent = Intent(Intent.ACTION_VIEW, uri)
+                intent.setDataAndType(uri, "video/*")
+                intent.flags = FLAG_ACTIVITY_NEW_TASK
+                context.startActivity(intent);
+
+
+                //channel.invokeMethod("onClick", null)
             }
             true
         }

@@ -58,7 +58,7 @@ class _MyAppState extends State<MyApp> {
             ];
             var index = Random().nextInt(4);
             setState(() {
-              _items.add(list[3]);
+              _items.add(list[index]);
             });
           },
           child: Icon(Icons.add),
